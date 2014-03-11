@@ -42,6 +42,11 @@ degstep = params["DEGREE_INTERVAL"]
 
 ref_r =  params["REFERENCE_RADIUS"]
 GM = params["GM"]
+youngs_mod = params["YOUNGS_MODULUS"]
+poissons_r = params["POISSONS_RATIO"]
+del_rho = params["MANTLE_CRUST_DENSITY_CONTRAST"]
+crust_thick = params["CRUSTAL_THICKNESS"]
+
 
 outfile = params["OUTFILE"]
 
@@ -71,6 +76,19 @@ def multipliers(code): #adds multipliers to a simple SH expansion
 		print "Radial Topography (meters)"
 	else:
 		print "Simple Model (no multipliers/model type not identified)"
+		
+	if model_weight=="shallow":
+		print "-->(weighted shallow)"
+		flex_rig = youngs_mod*(crust_thick**3)/(12*(1-poissons_r));
+		for n in range(max_degree+1):
+			C = 1-(del_rho/(del_rho + (flex_rig/(GM/(ref_r**2)))*((n/ref_r)**4)));
+			in_coeff[n] = in_coeff[n] * C
+	elif model_weight=="deep":
+		print "-->(weighted deep)"
+		flex_rig = youngs_mod*(crust_thick**3)/(12*(1-poissons_r));
+		for n in range(max_degree+1):
+			C = del_rho/(del_rho + (flex_rig/(GM/(ref_r**2)))*((n/ref_r)**4));
+			in_coeff[n] = in_coeff[n] * C
 		
 	return in_coeff,out_coeff
 	
