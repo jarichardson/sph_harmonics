@@ -3,7 +3,7 @@ import sys, time
 from numpy import *
 
 #Evaluates fully normalized spherical harmonic coefficients from a table
-#All variables needing to be changed are below (Lines 1-70)
+#All variables needing to be changed are below (Lines 1-50), but use a configuration file.
 #For Term Project, Potential Fields 2013, Jacob Richardson
 
 #VARIABLE SET UP
