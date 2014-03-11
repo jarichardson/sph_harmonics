@@ -6,67 +6,47 @@ from numpy import *
 #All variables needing to be changed are below (Lines 1-70)
 #For Term Project, Potential Fields 2013, Jacob Richardson
 
-#####################################
-#PARAMETER SETUP
-
-model_type = "topo"
-#available models:
-#gravity disturbance, "dg"
-#     mGal
-#     Difference between real gravity and "normal" gravity on spheriod
-#gravitational acceleration, "g"
-#     m s^-2
-#     Acceleration due to gravity toward center of spheroid
-#topography, "topo"
-#     m
-#     Difference between real elevation and spheroid elevation
-#     (for unit conversion, change outside multiplier (out_coeff)
-#        "multipliers" function)
-#radial topography, "radialtopo"
-#     m
-#     Distance from spheroid center and surface
-#     (for unit conversion, change outside multiplier (out_coeff)
-#        "multipliers" function)
-#To add models, change the functions "multipliers" and "model_formatting"
-
+#VARIABLE SET UP
 global GM
 global ref_r
 global min_degree
 global max_degree
 
-#COEFFICIENTS TABLE SETUP
-coeff_tbl_file = "lro_ltm01_pa_1080_sha_max50.tab" #input file
-header_lines = 0
-delim=" " #for whitespace delimited use " "
-col_d = 0 #degree column (first column is 0, not 1)
-col_o = 1 #order column
-col_C = 2 #Cos coefficient column
-col_S = 3 #Sin coefficient column
+#load configuration file
+params = {}
+try:
+	execfile(sys.argv[1],params)
+except: #if config file not correct, give syntax and exit
+	sys.stdout.write("\nError: Cannot Load Parameters. Configuration file not given or does not exist.\nSyntax: ./sph_harmonic.py <configuration-file>\n\nExiting.\n")
+	sys.exit()
 
-#MODEL SETUP
-#to remove dynamic gravity (J2) for free-air, min deg should be 2.
-min_degree = 0
-max_degree = 50
+model_type = params["MODEL_TYPE"]
+model_weight = params["MODEL_WEIGHT"]
 
-west  = -180.0 #in lat,lon coords
-east  = 178.0 #in degrees
-south = -89  #global = w,-180; e,(180-degstep); s,-90; n,90
-north = 89
-degstep = 2 #for degree step based on max_degree of model (natural wavelength), set to 0.
+coeff_tbl_file = params["COEFFICIENT_TABLE_FILE"] #input file
+header_lines = params["HEADER_LINES"]
+delim= params["DELIMITER"]
+col_d = params["DEGREE_COLUMN"]
+col_o = params["ORDER_COLUMN"]
+col_C = params["C_COEFFICIENT_COLUMN"]
+col_S = params["S_COEFFICIENT_COLUMN"]
 
-ref_r =  1.738000000000000e06 #reference radius (meters)
+min_degree = params["MINIMUM_DEGREE"]
+max_degree = params["MAXIMUM_DEGREE"]
 
-#Gravitational Constant * Planet Mass (SI units)
-#Needed for gravity models
-GM = 4.902799806931690e12
+west  = params["WEST_LONGITUDE"]
+east  = params["EAST_LONGITUDE"]
+south = params["SOUTH_LATITUDE"]
+north = params["NORTH_LATITUDE"]
+degstep = params["DEGREE_INTERVAL"]
 
+ref_r =  params["REFERENCE_RADIUS"]
+GM = params["GM"]
 
-#OUTPUT FILE
-outfile = "out.llz"
-#output format: tab delimited lat, long, value
+outfile = params["OUTFILE"]
 
 #####################################
-#DO NOT CHANGE BELOW
+#FUNCTIONS
 #####################################
 
 def multipliers(code): #adds multipliers to a simple SH expansion
