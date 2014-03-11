@@ -1,58 +1,126 @@
-Readme File for sph_harmonic.py
-parameter configuration file
+Readme File for sph_harmonic.py, a spherical harmonics code
+in python
 
-Right now, this is the parameter set up, but with a bit more explanation.
-More might come later.
+Created by Jacob Richardson, jarichardson@mail.usf.edu
+http://jarichardson.myweb.usf.edu
+University of South Florida, 2013-4.
 
-#Available Models:
-#gravity disturbance, "dg"
-#     mGal
-#     Difference between real gravity and "normal" gravity on spheriod
-#gravitational acceleration, "g"
-#     m s^-2
-#     Acceleration due to gravity toward center of spheroid
-#topography, "topo"
-#     m
-#     Difference between real elevation and spheroid elevation
-#     (for unit conversion, change outside multiplier (out_coeff)
-#        "multipliers" function)
-#radial topography, "radialtopo"
-#     m
-#     Distance from spheroid center and surface
-#     (for unit conversion, change outside multiplier (out_coeff)
-#        "multipliers" function)
-#To add models, change the functions "multipliers" and "model_formatting"
-
-model_type = "topo"
-
-#COEFFICIENTS TABLE SETUP
-coeff_tbl_file = "lro_ltm01_pa_1080_sha_max50.tab" #input file
-header_lines = 0
-delim=" " #for whitespace delimited use " "
-col_d = 0 #degree column (first column is 0, not 1)
-col_o = 1 #order column
-col_C = 2 #Cos coefficient column
-col_S = 3 #Sin coefficient column
-
-#MODEL SETUP
-#to remove dynamic gravity (J2) for free-air, min deg should be 2.
-#   gravity, min degree should likely be 2
-min_degree = 0
-max_degree = 50
-
-west  = -180.0 #in lat,lon coords
-east  = 178.0 #in degrees
-south = -89  #global = w,-180; e,(180-degstep); s,-90; n,90
-north = 89
-degstep = 2 #for degree step based on max_degree of model (natural wavelength), set to 0.
-
-ref_r =  1.738000000000000e06 #reference radius (meters)
-
-#Gravitational Constant * Planet Mass (SI units)
-#Needed for gravity models
-GM = 4.902799806931690e12
+------------------------------------------------------------
+Contents of the Readme File:
+1. Running the code
+2. Setting Parameters
+	2.1. Models
+		2.1.2. Weighting
+	2.2. Coefficients Table
+	2.3. Model Setup
+	2.4. Physical Parameters
+	2.5. Output file
 
 
-#OUTPUT FILE
-outfile = "out.llz"
-#output format: tab delimited lat, long, value
+------------------------------------------------------------
+
+1. Running the code
+
+The syntax for the code is 
+./sph_harmonic.py <configuration file>
+
+
+------------------------------------------------------------
+
+2. Setting Parameters
+
+Parameters are set in the configuration file. A sample 
+configuration file is listed in this repository as
+parameters.conf.
+
+2.1. Models
+Four models are currently available: gravity disturbance,
+gravitational acceleration, topography, and radial
+topography.
+
+Gravity disturbance
+   code: "dg"
+   units: mGal
+   Description: Difference between real gravity and "normal"
+      gravity on spheroid.
+
+Gravitational acceleration
+   code: "g"
+   units: m s^-2
+   Description: Acceleration due to gravity toward center of
+      spheroid.
+
+Topography
+   code: "topo"
+   units: m
+   Description: Difference between real elevation and 
+      spheroid elevation. Currently assumes coefficients are
+      in km, "multipliers" function converts to meters.   
+      For unit conversion, change outside multiplier 
+      (out_coeff) "multipliers" function.
+      
+Radial topography
+   code: "radialtopo"
+   units: m
+   Distance between spheroid center and surface. Currently 
+      assumes coefficients are in km, "multipliers" function 
+      converts to meters. For unit conversion, change 
+      outside multiplier (out_coeff) "multipliers" function)
+      
+To add models, change the functions: 
+   "multipliers" and/or "model_formatting"
+
+2.1.2. Weighting
+
+All models can be unweighted (regular), weighted shallow or
+weighted deep. Weighted "deep" favors long wavelengths which
+should be compensated, based on physical parameters (see 
+2.4). Weighted "shallow" favors short wavelengths which
+should be supported by an elastic crust.
+
+
+2.2. Coefficients Table
+
+A four column coefficients table is required. Give the file
+name in COEFFICIENT_TABLE_FILE.
+
+The delimiter should be set as one character (e.g. ","). If
+delimiter is white space, set DELIMITER = " ".
+
+
+2.3. Model Setup
+
+The minimum and maximum degrees are model dependent. For
+instance, gravity anomaly models should generally start at
+1 or 2. Max degree is either the largest degree in the
+coefficients table or the largest degree needed for the
+desired model.
+
+The range is set with the WESN long/lat parameters. For a
+global model, set SOUTH_LATITUDE = -90; NORTH_LATITUDE = 90;
+WEST_LONGITUDE = -180. Set EAST_LONGITUDE to 180 minus the
+degree step set by DEGREE_INTERVAL.
+
+If DEGREE_INTERVAL = 0, it will be automatically set to
+0.5 * Natural Wavelength, where the Natural Wavelength is
+360/MAXIMUM_DEGREE.
+
+
+2.4. Physical Parameters
+
+All physical parameters should be in M-K-S Units.
+
+Reference Radius is required for all models, but topography.
+GM is required for gravity models
+All other parameters are required for the current weighted
+models (YOUNGS_MODULUS, POISSONS_RATIO, 
+MANTLE_CRUST_DENSITY_CONTRAST, CRUSTAL_THICKNESS).
+
+
+2.5. Output file
+
+The output file is a headerless tab-delimited ASCII file, 
+with the format:
+longitude   latitude   value
+
+
