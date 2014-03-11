@@ -167,7 +167,7 @@ def nALF(mo,phi):
 		if n==0:
 			P[0] = 1
 		else:
-			rootn = sqrt(range(0,(2*n+1)))
+			rootn = sqrt(range(0,(2*n+2)))
 			s = sqrt(1-x**2) #equivalent of cos(phi)
 
 			if x==-1: #calculate 2*cotangent(phi)
@@ -288,7 +288,7 @@ nat_pixelwidth = nat_wavelength/2
 if degstep==0:
 	degstep=nat_pixelwidth
 	sys.stdout.write("Degree step set to %.3f degrees (180/max_order)\n" % degstep)
-elif nat_wavelength>degstep:
+elif nat_pixelwidth>degstep:
 	sys.stdout.write("\nWarning: degree step (%.3f deg) < 0.5*natural wavelength (%.3f deg, 360/max_order) \n" % (degstep,nat_wavelength))
 	sys.stdout.write("Warning: aliasing may occur.\n")
 	sys.stdout.flush()
